@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   detail_pemesanan.init({
     id_pemesanan: DataTypes.INTEGER,
-    id_kamar: DataTypes.INTEGER,
+    KamarId: DataTypes.INTEGER,
     tgl_akses: DataTypes.DATE,
     harga: DataTypes.INTEGER
   }, {

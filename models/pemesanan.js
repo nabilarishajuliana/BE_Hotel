@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(models.user)
       this.belongsTo(models.tipe_kamar)
       this.hasMany(models.detail_pemesanan, {
-        foreignKey: 'id_pemesanan', as: "detail_pemesanan"
+        foreignKey: 'id', as: "detail_pemesanan"
       })
 
       // define association here
@@ -28,9 +28,9 @@ module.exports = (sequelize, DataTypes) => {
     tgl_check_out: DataTypes.DATE,
     nama_tamu: DataTypes.STRING,
     jumlah_kamar: DataTypes.INTEGER,
-    id_tipe_kamar: DataTypes.INTEGER,
+    tipeKamarId: DataTypes.INTEGER,
     status_pemesanan: DataTypes.ENUM('baru','check_in','check_out'),
-    id_user: DataTypes.INTEGER
+    userId: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'pemesanan',

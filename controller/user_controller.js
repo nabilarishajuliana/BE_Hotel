@@ -9,9 +9,13 @@ const md5 = require('md5')
 const path = require(`path`)
 const fs = require(`fs`)
 
+
+
 const upload = require(`./upload-cover`).single(`foto`)
 const jsonwebtoken = require("jsonwebtoken")
 const SECRET_KEY = "secretcode"
+
+
 
 
 exports.login = async (request, response) => {
@@ -33,6 +37,7 @@ exports.login = async (request, response) => {
           id_user: findUser.id,
           email: findUser.email,
           role: findUser.role,
+          nama_user: findUser.nama_user
       };
       
       tokenPayload = JSON.stringify(tokenPayload);
@@ -45,6 +50,7 @@ exports.login = async (request, response) => {
               id_user: findUser.id,
               email: findUser.email,
               role: findUser.role,
+              nama_user: findUser.nama_user
           },
       });
   }
@@ -68,16 +74,16 @@ exports.getAllUser = async (request, response) => {
 }
 
 exports.findUser = async (request, response) => {
-    let nama_user = request.body.nama_user
-    let email = request.body.email
-    let password = md5(request.body.password)
+    let nama_user = request.body.keyword
+    // let email = request.body.email
+    // let password = md5(request.body.password)
 
     let users = await userModel.findAll({ 
         where: {
-        [Op.and]: [
+        [Op.or]: [
             { nama_user: { [Op.substring]: nama_user } },
-            { email: { [Op.substring]: email } },
-            { password: { [Op.substring]: password } }
+            // { email: { [Op.substring]: email } },
+            // { password: { [Op.substring]: password } }
         ]
         }
     })
@@ -141,17 +147,37 @@ exports.updateUser = (request, response) => {
       return response.json({ message: `Nothing file to Upload` });
     }
 
+/** define id member that will be update */
+    let idUser = request.params.id
+
     /** prepare data that has been changed */
     let dataUser = {
       nama_user: request.body.nama_user,
-      foto: request.file.filename,
+      // foto: request.file.filename,
       email: request.body.email,
       password: md5(request.body.password),
       role: request.body.role,
     }
 
-    /** define id member that will be update */
-    let idUser = request.params.id
+    
+
+    if (request.file && request.file.filename) {
+      dataUser.foto = request.file.filename;
+    }
+    if (request.file) {
+      const selectedUser = await userModel.findOne({
+        where: { id: idUser },
+      });
+
+      const oldFotoUser = selectedUser.foto;
+
+      const patchFoto = path.join(__dirname, `../foto`, oldFotoUser);
+
+      if (fs.existsSync(patchFoto)) {
+        fs.unlink(patchFoto, (error) => console.log(error));
+      }
+      dataUser.foto = request.file.filename;
+    }
 
     /** execute update data based on defined id member */
     userModel.update(dataUser, { where: { id: idUser } })

@@ -24,13 +24,13 @@ exports.getAllTipeKamar = async (request, response) => {
 }
 
 exports.findTipeKamar = async (request, response) => {
-    let nama_tipe_kamar = request.body.nama_tipe_kamar
-    let harga = request.body.harga
+    let nama_tipe_kamar = request.body.keyword
+    // let harga = request.body.harga
     let tipe_kamars = await tipekamarModel.findAll({
         where: {
             [Op.and]: [
                 { nama_tipe_kamar: { [Op.substring]: nama_tipe_kamar } },
-                { harga: { [Op.substring]: harga } },
+                // { harga: { [Op.substring]: harga } },
             ]
         }
     })
@@ -88,7 +88,7 @@ exports.updateTipeKamar = async (request, response) => {
             nama_tipe_kamar: request.body.nama_tipe_kamar,
             harga: request.body.harga,
             deskripsi: request.body.deskripsi,
-            foto: request.file.filename,
+            // foto: request.file.foto,
             
         }
         
@@ -124,13 +124,13 @@ exports.updateTipeKamar = async (request, response) => {
 
 exports.deleteTipeKamar = async (request, response) => {
     const id = request.params.id
-    const tipe_kamar = await tipekamarModel.findOne({ where: { id: id } })
-    const oldFotoTipeKamar = tipe_kamar.foto
-    const pathFoto = path.join(__dirname, `../foto`, oldFotoTipeKamar)
+    // const tipe_kamar = await tipekamarModel.findOne({ where: { id: id } })
+    // const oldFotoTipeKamar = tipe_kamar.foto
+    // const pathFoto = path.join(__dirname, `../foto`, oldFotoTipeKamar)
 
-    if (fs.existsSync(pathFoto)) {
-        fs.unlink(pathFoto, error => console.log(error))
-    }
+    // if (fs.existsSync(pathFoto)) {
+    //     fs.unlink(pathFoto, error => console.log(error))
+    // }
 
     tipekamarModel.destroy({ where: { id: id } })
         .then(result => {
@@ -141,7 +141,7 @@ exports.deleteTipeKamar = async (request, response) => {
         })
         .catch(error => {
             return response.json({
-                success: false,
+                success: false, 
                 message: error.message
             })
         })

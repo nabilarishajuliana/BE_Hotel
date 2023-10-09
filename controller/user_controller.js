@@ -50,7 +50,9 @@ exports.login = async (request, response) => {
               id_user: findUser.id,
               email: findUser.email,
               role: findUser.role,
-              nama_user: findUser.nama_user
+              nama_user: findUser.nama_user,
+              foto: findUser.foto
+
           },
       });
   }
@@ -155,11 +157,14 @@ exports.updateUser = (request, response) => {
       nama_user: request.body.nama_user,
       // foto: request.file.filename,
       email: request.body.email,
-      password: md5(request.body.password),
+      // password: md5(request.body.password),
       role: request.body.role,
     }
 
-    
+    if (request.body.password) {
+      // Jika ada perubahan pada password, enkripsi password baru
+      dataUser.password = md5(request.body.password);
+    }
 
     if (request.file && request.file.filename) {
       dataUser.foto = request.file.filename;

@@ -8,9 +8,9 @@ const auth =require("../auth/auth")
 
 app.get("/getAllKamar", kamarController.getAllKamar)
 app.post("/findKamar", kamarController.findKamar)
-app.post("/addKamar", kamarController.addKamar)
-app.put("/updateKamar/:id", kamarController.updateKamar)
-app.delete("/deleteKamar/:id", kamarController.deleteKamar)
+app.post("/addKamar", auth.authVerify,kamarController.addKamar)
+app.put("/updateKamar/:id", auth.authVerify,kamarController.updateKamar)
+app.delete("/deleteKamar/:id", auth.authVerify,kamarController.deleteKamar)
 app.post("/find/available", kamarController.findRoomByFilterDate)
 
 

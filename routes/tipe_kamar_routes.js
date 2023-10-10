@@ -7,7 +7,7 @@ const auth =require("../auth/auth")
 
 
 app.get("/getAllTipe", tipekamarController.getAllTipeKamar)
-app.post("/findTipeKamar", auth.authVerify,tipekamarController.findTipeKamar)
+app.post("/findTipeKamar", tipekamarController.findTipeKamar)
 app.post("/addTipeKamar", auth.authVerify,tipekamarController.addTipeKamar)
 app.put("/updateTipeKamar/:id", auth.authVerify,tipekamarController.updateTipeKamar)
 app.delete("/deleteTipeKamar/:id", auth.authVerify,tipekamarController.deleteTipeKamar)

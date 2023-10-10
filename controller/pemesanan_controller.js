@@ -248,56 +248,99 @@ exports.addPemesananNew = async (request, response) => {
     pemesananModel
       .create(newData)
       .then((result) => {
+
         let pemesananID = result.id;
+      let tgl1 = new Date(result.tgl_check_in);
+      let tgl2 = new Date(result.tgl_check_out);
+      let checkIn = moment(tgl1).format("YYYY-MM-DD");
+      let checkOut = moment(tgl2).format("YYYY-MM-DD");
 
-        let tgl1 = new Date(result.tgl_check_in);
-        let tgl2 = new Date(result.tgl_check_out);
-        let checkIn = moment(tgl1).format("YYYY-MM-DD");
-        let checkOut = moment(tgl2).format("YYYY-MM-DD");
+      let newDetails = [];
 
-        // check if the dates are valid
-        let success = true;
-        let message = "";
+      // Loop through the dates between check-in and check-out
+      for (
+        let m = moment(checkIn, "YYYY-MM-DD");
+        m.isBefore(checkOut);
+        m.add(1, "days")
+      ) {
+        let date = m.format("YYYY-MM-DD");
 
-        //looping detail pemesanan anatar tanggal check in sampai 1 hari sebelum check out agara mudah dalam cek available
-        for (
-          let m = moment(checkIn, "YYYY-MM-DD");
-          m.isBefore(checkOut);
-          m.add(1, "days")
-        ) {
-          let date = m.format("YYYY-MM-DD");
-
-          // isi newDetail dengan id kamar hasil randomana lalu insert dengan di loop sesuai array yang berisi randoman kamar
-          let newDetail = [];
-          for (let index = 0; index < roomId.length; index++) {
-            newDetail.push({
-              pemesananId: pemesananID,
-              kamarId: roomId[index].id,
-              tgl_akses: date,
-              harga: harga,
-            });
-            detailOfPemesananModel
-              .create(newDetail[index])
-              .then(async (resultss) => {
-                let getData = await sequelize.query(
-                  `SELECT  pemesanans.id, pemesanans.nomor_pemesanan, pemesanans.nama_pemesanan,pemesanans.email_pemesanan,pemesanans.tgl_pemesanan,pemesanans.tgl_check_in,pemesanans.tgl_check_out,detail_pemesanans.harga,pemesanans.nama_tamu,pemesanans.jumlah_kamar,pemesanans.status_pemesanan, users.nama_user, tipe_kamars.nama_tipe_kamar,tipe_kamars.harga as harga_tipe_kamar, kamars.nomor_kamar FROM pemesanans JOIN tipe_kamars ON tipe_kamars.id = pemesanans.tipeKamarId JOIN users ON users.id=pemesanans.userId JOIN detail_pemesanans ON detail_pemesanans.pemesananId=pemesanans.id JOIN kamars ON kamars.id=detail_pemesanans.kamarId WHERE pemesanans.id=${pemesananID} GROUP BY kamars.id`
-                );
-                return response.json({
-                  success: true,
-                  message: `New transactions have been inserted`,
-                  data: getData[0],
-                  result:resultss
-                });
-              })
-              .catch((error) => {
-                return response.status(400).json({
-                  success: false,
-                  message: error.message,
-                });
-              });
-          }
-          console.log(m);
+        // Loop through roomId array and create new detail for each roomId
+        for (let index = 0; index < roomId.length; index++) {
+          newDetails.push({
+            pemesananId: pemesananID,
+            kamarId: roomId[index].id,
+            tgl_akses: date,
+            harga: harga,
+          });
         }
+      }
+
+      // Create new details in a single bulk create operation
+      detailOfPemesananModel.bulkCreate(newDetails).then(async (resultss) => {
+        let getData = await sequelize.query(
+          `SELECT  pemesanans.id, pemesanans.nomor_pemesanan, pemesanans.nama_pemesanan,pemesanans.email_pemesanan,pemesanans.tgl_pemesanan,pemesanans.tgl_check_in,pemesanans.tgl_check_out,detail_pemesanans.harga,pemesanans.nama_tamu,pemesanans.jumlah_kamar,pemesanans.status_pemesanan, users.nama_user, tipe_kamars.nama_tipe_kamar,tipe_kamars.harga as harga_tipe_kamar, kamars.nomor_kamar FROM pemesanans JOIN tipe_kamars ON tipe_kamars.id = pemesanans.tipeKamarId JOIN users ON users.id=pemesanans.userId JOIN detail_pemesanans ON detail_pemesanans.pemesananId=pemesanans.id JOIN kamars ON kamars.id=detail_pemesanans.kamarId WHERE pemesanans.id=${pemesananID} GROUP BY kamars.id`
+        );
+
+        // Send the response after all the processing is complete
+        return response.json({
+          success: true,
+          message: `New transactions have been inserted`,
+          data: getData[0],
+        });
+      });
+   
+
+        // let pemesananID = result.id;
+
+        // let tgl1 = new Date(result.tgl_check_in);
+        // let tgl2 = new Date(result.tgl_check_out);
+        // let checkIn = moment(tgl1).format("YYYY-MM-DD");
+        // let checkOut = moment(tgl2).format("YYYY-MM-DD");
+
+        // // check if the dates are valid
+        // let success = true;
+        // let message = "";
+
+        // //looping detail pemesanan anatar tanggal check in sampai 1 hari sebelum check out agara mudah dalam cek available
+        // for (
+        //   let m = moment(checkIn, "YYYY-MM-DD");
+        //   m.isBefore(checkOut);
+        //   m.add(1, "days")
+        // ) {
+        //   let date = m.format("YYYY-MM-DD");
+
+        //   // isi newDetail dengan id kamar hasil randomana lalu insert dengan di loop sesuai array yang berisi randoman kamar
+        //   let newDetail = [];
+        //   for (let index = 0; index < roomId.length; index++) {
+        //     newDetail.push({
+        //       pemesananId: pemesananID,
+        //       kamarId: roomId[index].id,
+        //       tgl_akses: date,
+        //       harga: harga,
+        //     });
+        //     detailOfPemesananModel
+        //       .create(newDetail[index])
+        //       .then(async (resultss) => {
+        //         let getData = await sequelize.query(
+        //           `SELECT  pemesanans.id, pemesanans.nomor_pemesanan, pemesanans.nama_pemesanan,pemesanans.email_pemesanan,pemesanans.tgl_pemesanan,pemesanans.tgl_check_in,pemesanans.tgl_check_out,detail_pemesanans.harga,pemesanans.nama_tamu,pemesanans.jumlah_kamar,pemesanans.status_pemesanan, users.nama_user, tipe_kamars.nama_tipe_kamar,tipe_kamars.harga as harga_tipe_kamar, kamars.nomor_kamar FROM pemesanans JOIN tipe_kamars ON tipe_kamars.id = pemesanans.tipeKamarId JOIN users ON users.id=pemesanans.userId JOIN detail_pemesanans ON detail_pemesanans.pemesananId=pemesanans.id JOIN kamars ON kamars.id=detail_pemesanans.kamarId WHERE pemesanans.id=${pemesananID} GROUP BY kamars.id`
+        //         );
+        //         return response.json({
+        //           success: true,
+        //           message: `New transactions have been inserted`,
+        //           data: getData[0],
+        //           result:resultss
+        //         });
+        //       })
+        //       .catch((error) => {
+        //         return response.status(400).json({
+        //           success: false,
+        //           message: error.message,
+        //         });
+        //       });
+        //   }
+        //   console.log(m);
+        // }
       })
       .catch((error) => {
         return response.status(400).json({
